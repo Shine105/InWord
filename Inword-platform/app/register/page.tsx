@@ -1,29 +1,19 @@
-'use client';
+"use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRegister } from "@/hooks/useRegister";
 
 export default function Register() {
+  const { registerUser, registrationMessage, errorMessage } = useRegister();
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
-  const [registrationMessage, setRegistrationMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // Add state for error messages
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await fetch("/API/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      setRegistrationMessage(data.message);
-      setErrorMessage(""); // Clear any previous error messages
-    } else {
-      setErrorMessage(data.message || "Registration failed.");
-      setRegistrationMessage(""); // Clear any previous success message
-    }
+    registerUser(formData);
   };
 
   return (
@@ -32,11 +22,11 @@ export default function Register() {
       {registrationMessage && <p style={{ color: "green" }}>{registrationMessage}</p>}
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
       <form onSubmit={handleSubmit}>
-        <input type="text" placeholder="Name" onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-        <input type="email" placeholder="Email" onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-        <input type="password" placeholder="Password" onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+        <input type="text" name="name" placeholder="Name" onChange={handleInputChange} />
+        <input type="email" name="email" placeholder="Email" onChange={handleInputChange} />
+        <input type="password" name="password" placeholder="Password" onChange={handleInputChange} />
         <button type="submit">Register</button>
-        <Link href="http://localhost:3000/">Home</Link>
+        <Link href="/">Home</Link>
       </form>
     </div>
   );
